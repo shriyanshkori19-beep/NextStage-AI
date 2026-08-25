@@ -35,23 +35,29 @@ nextstageai/
 - Python 3.10+
 - pip
 
-### 1. Install Dependencies
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/shriyanshkori19-beep/NextStage-AI.git](https://github.com/shriyanshkori19-beep/NextStage-AI.git)
+cd NextStage-AI
+```
+
+### 2. Install Dependencies
 ```bash
 pip install streamlit pandas python-dotenv matplotlib google-genai
 ```
 
-### 2. Run Automated Tests
+### 3. Run Automated Tests
 ```bash
 python tests/verify_cases.py
 ```
 
-### 3. Launch the Streamlit Dashboard
+### 4. Launch the Streamlit Dashboard
 ```bash
 python -m streamlit run src/app.py
 ```
 Then open **http://localhost:8501** in your browser.
 
-### 4. (Optional) Enable Live AI Diagnostics
+### 5. (Optional) Enable Live AI Diagnostics
 Enter your **Gemini API Key** in the sidebar of the dashboard. Without a key, the system runs in **Simulation Mode** using pre-computed diagnostic outputs.
 
 ---
