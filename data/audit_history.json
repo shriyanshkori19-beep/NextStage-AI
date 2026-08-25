@@ -1,0 +1,219 @@
+[
+  {
+    "case_id": "NET-001",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/0.30\nno shutdown",
+    "notes": "AI diagnosis was 100% correct.",
+    "timestamp": "2026-08-25 10:15:00"
+  },
+  {
+    "case_id": "NET-003",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nvlan 20\n name Sales\nexit",
+    "notes": "VLAN was indeed missing from database.",
+    "timestamp": "2026-08-25 10:18:00"
+  },
+  {
+    "case_id": "NET-004",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n switchport trunk allowed vlan add 10",
+    "notes": "Trunk configuration checked and fixed.",
+    "timestamp": "2026-08-25 10:20:00"
+  },
+  {
+    "case_id": "NET-005",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n switchport trunk native vlan 10",
+    "notes": "Fixed native VLAN mismatch.",
+    "timestamp": "2026-08-25 10:22:00"
+  },
+  {
+    "case_id": "NET-006",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nip dhcp pool OFFICE_POOL\n network 192.168.1.0 255.255.255.0",
+    "notes": "Confirmed pool was exhausted.",
+    "timestamp": "2026-08-25 10:25:00"
+  },
+  {
+    "case_id": "NET-007",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/0.10\n ip helper-address 10.1.1.5",
+    "notes": "DHCP relay configured.",
+    "timestamp": "2026-08-25 10:28:00"
+  },
+  {
+    "case_id": "NET-008",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nip dhcp service",
+    "notes": "Enabled disabled service.",
+    "timestamp": "2026-08-25 10:30:00"
+  },
+  {
+    "case_id": "NET-009",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nip dhcp pool CLIENT_POOL\n no dns-server 192.168.1.100\n dns-server 192.168.1.10",
+    "notes": "DNS server IP corrected.",
+    "timestamp": "2026-08-25 10:35:00"
+  },
+  {
+    "case_id": "NET-010",
+    "human_action": "Accepted",
+    "human_fix_steps": "# Enable DNS in server settings GUI",
+    "notes": "DNS service turned on.",
+    "timestamp": "2026-08-25 10:38:00"
+  },
+  {
+    "case_id": "NET-011",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nrouter ospf 1\n network 192.168.30.0 0.0.0.255 area 0",
+    "notes": "OSPF network added.",
+    "timestamp": "2026-08-25 10:40:00"
+  },
+  {
+    "case_id": "NET-012",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nrouter ospf 1\n no network 192.168.12.0 0.0.0.3 area 1\n network 192.168.12.0 0.0.0.3 area 0",
+    "notes": "OSPF area mismatch fixed.",
+    "timestamp": "2026-08-25 10:45:00"
+  },
+  {
+    "case_id": "NET-014",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nip route 0.0.0.0 0.0.0.0 203.0.113.2",
+    "notes": "Default route added.",
+    "timestamp": "2026-08-25 10:48:00"
+  },
+  {
+    "case_id": "NET-015",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/0.40\n ip access-group GUEST_ACL in",
+    "notes": "ACL applied successfully.",
+    "timestamp": "2026-08-25 10:50:00"
+  },
+  {
+    "case_id": "NET-016",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nip access-list extended OUTSIDE_ACL\n 5 permit udp any any eq 53",
+    "notes": "DNS UDP 53 permitted.",
+    "timestamp": "2026-08-25 10:55:00"
+  },
+  {
+    "case_id": "NET-018",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/0\n ip nat inside",
+    "notes": "NAT inside config added.",
+    "timestamp": "2026-08-25 11:00:00"
+  },
+  {
+    "case_id": "NET-020",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nno access-list 10\naccess-list 10 permit 192.168.10.0 0.0.0.255",
+    "notes": "NAT ACL subnet range corrected.",
+    "timestamp": "2026-08-25 11:05:00"
+  },
+  {
+    "case_id": "NET-021",
+    "human_action": "Accepted",
+    "human_fix_steps": "# Correct client SSID settings to Office_Wifi",
+    "notes": "SSID mismatch fixed.",
+    "timestamp": "2026-08-25 11:10:00"
+  },
+  {
+    "case_id": "NET-023",
+    "human_action": "Accepted",
+    "human_fix_steps": "# Expand DHCP scope range on WLC",
+    "notes": "IP scope expanded.",
+    "timestamp": "2026-08-25 11:15:00"
+  },
+  {
+    "case_id": "NET-024",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n ip address 192.168.10.1 255.255.255.0",
+    "notes": "Duplicate IP address conflict resolved.",
+    "timestamp": "2026-08-25 11:20:00"
+  },
+  {
+    "case_id": "NET-025",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n ip address 10.10.10.2 255.255.255.0",
+    "notes": "Mismatched mask resolved.",
+    "timestamp": "2026-08-25 11:25:00"
+  },
+  {
+    "case_id": "NET-026",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n no shutdown",
+    "notes": "Brought up trunk port interface.",
+    "timestamp": "2026-08-25 11:30:00"
+  },
+  {
+    "case_id": "NET-028",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\nip dhcp pool VLAN10_POOL\n no default-router 192.168.10.254\n default-router 192.168.10.1",
+    "notes": "Default router IP in pool fixed.",
+    "timestamp": "2026-08-25 11:35:00"
+  },
+  {
+    "case_id": "NET-029",
+    "human_action": "Accepted",
+    "human_fix_steps": "# Add A record: database.internal.local -> 10.1.1.50",
+    "notes": "A record added.",
+    "timestamp": "2026-08-25 11:40:00"
+  },
+  {
+    "case_id": "NET-002",
+    "human_action": "Edited",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/0.10\n ip address 192.168.10.1 255.255.255.0",
+    "notes": "CORRECTION: AI suggested 'no encapsulation dot1Q 10' which is destructive and unnecessary. Tweak IP to match default gateway directly.",
+    "timestamp": "2026-08-25 12:00:00"
+  },
+  {
+    "case_id": "NET-013",
+    "human_action": "Edited",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n ip mtu 1500\n# OR on Router2:\n# interface GigabitEthernet0/1\n# ip mtu 1500",
+    "notes": "CORRECTION: AI proposed 'ip ospf mtu-ignore' which bypasses troubleshooting best practices. Corrected MTU directly on interface.",
+    "timestamp": "2026-08-25 12:05:00"
+  },
+  {
+    "case_id": "NET-017",
+    "human_action": "Edited",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/1\n no ip access-group DMZ_ACL in\n ip access-group DMZ_ACL out",
+    "notes": "CORRECTION: AI suggested deleting and recreating the DMZ_ACL. Simply changing the application direction from 'in' to 'out' on Gi0/1 fixes it.",
+    "timestamp": "2026-08-25 12:10:00"
+  },
+  {
+    "case_id": "NET-019",
+    "human_action": "Edited",
+    "human_fix_steps": "configure terminal\nno ip nat inside source list 1 interface GigabitEthernet0/1\nip nat inside source list 1 interface GigabitEthernet0/1 overload",
+    "notes": "CORRECTION: AI recommended rebooting the NAT router to clear translations. Re-applying the command with the overload keyword is clean and standard.",
+    "timestamp": "2026-08-25 12:15:00"
+  },
+  {
+    "case_id": "NET-022",
+    "human_action": "Edited",
+    "human_fix_steps": "# Configure client key with correct uppercase letter:\n# staff pre-shared key = Cisco12345!",
+    "notes": "CORRECTION: AI suggested disabling WPA2 security completely due to key mismatch. Corrected key capitalization on client side to preserve security.",
+    "timestamp": "2026-08-25 12:20:00"
+  },
+  {
+    "case_id": "NET-027",
+    "human_action": "Rejected",
+    "human_fix_steps": "",
+    "notes": "REJECTED: AI failed to notice that permit ip any any statement bypassed the block rules. AI recommended a static route instead of correcting ACL.",
+    "timestamp": "2026-08-25 12:30:00"
+  },
+  {
+    "case_id": "NET-030",
+    "human_action": "Rejected",
+    "human_fix_steps": "",
+    "notes": "REJECTED: AI recommended deleting the WAN subinterface completely. This would break outer connectivity. Conflicting IP range inside pool must be adjusted.",
+    "timestamp": "2026-08-25 12:35:00"
+  },
+  {
+    "case_id": "NET-001",
+    "human_action": "Accepted",
+    "human_fix_steps": "configure terminal\ninterface GigabitEthernet0/0.30\nno shutdown",
+    "notes": "Approved by network operator in active workspace.",
+    "timestamp": "2026-08-25 15:34:40"
+  }
+]

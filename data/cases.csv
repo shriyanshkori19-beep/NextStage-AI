@@ -1,0 +1,222 @@
+case_id,symptom,topology_note,concept_tag,severity,osi_layer,show_outputs,expected_fault
+NET-001,PC1 in VLAN 30 cannot reach Server1 in VLAN 30; gateway ping fails.,PC1 (192.168.30.50) is in VLAN 30. Default gateway is Router sub-interface GigabitEthernet0/0.30 (192.168.30.1).,Gateway,High,Layer 1,"Router# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     unassigned      YES unset  up                    up
+GigabitEthernet0/0.10  192.168.10.1    YES manual up                    up
+GigabitEthernet0/0.20  192.168.20.1    YES manual up                    up
+GigabitEthernet0/0.30  192.168.30.1    YES manual administratively down down
+GigabitEthernet0/1     10.1.1.1        YES manual up                    up
+",Sub-interface GigabitEthernet0/0.30 is administratively down.
+NET-002,PC1 in VLAN 10 cannot ping its default gateway 192.168.10.1.,"PC1 IP: 192.168.10.50, Mask: 255.255.255.0, Default Gateway: 192.168.10.1. Switch1 trunk is configured and active.",Gateway,Medium,Layer 3,"Router# show running-config interface GigabitEthernet0/0.10
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.2 255.255.255.0
+",Router interface IP configuration mismatch (configured as 192.168.10.2 instead of default gateway 192.168.10.1).
+NET-003,PC2 in VLAN 20 is plugged into Switch port FastEthernet0/5 but has no network connectivity.,PC2 should be in VLAN 20. Switch1 port Fa0/5 is assigned to VLAN 20.,VLAN,High,Layer 2,"Switch1# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2, Fa0/3, Fa0/4
+10   Sales                            active    Fa0/6, Fa0/7
+30   Engineering                      active    Fa0/8, Fa0/9
+
+Switch1# show running-config interface FastEthernet0/5
+interface FastEthernet0/5
+ switchport access vlan 20
+ switchport mode access
+",VLAN 20 is missing from the Switch's active VLAN database.
+NET-004,VLAN 10 hosts cannot communicate across Switch1 and Switch2.,Switch1 and Switch2 are connected via GigabitEthernet0/1. Both switches host VLAN 10 and VLAN 20.,VLAN,High,Layer 2,"Switch1# show interfaces trunk
+Port        Mode         Encapsulation  Status        Native vlan
+Gi0/1       on           802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Gi0/1       20,30
+",VLAN 10 is missing from the allowed VLAN list on the trunk port GigabitEthernet0/1.
+NET-005,"Switch console is flooded with native VLAN mismatch messages, and traffic on native VLAN is leaking.",Switch1 Gi0/1 connects to Switch2 Gi0/1.,VLAN,Medium,Layer 2,"Switch1# show interfaces trunk
+Port        Mode         Encapsulation  Status        Native vlan
+Gi0/1       on           802.1q         trunking      10
+
+Switch2# show interfaces trunk
+Port        Mode         Encapsulation  Status        Native vlan
+Gi0/1       on           802.1q         trunking      99
+","Native VLAN mismatch on trunk link: Switch1 Native VLAN is 10, Switch2 is 99."
+NET-006,"Newly connected PCs are unable to get an IP address, getting APIPA 169.254.x.x addresses.",Router provides DHCP service via pool OFFICE_POOL.,DHCP,High,Layer 7,"Router# show ip dhcp pool OFFICE_POOL
+Pool OFFICE_POOL :
+ Utilization mark (dilution) is 100
+ Current index        IP address range             Leased/Excluded/Total
+ 192.168.1.254        192.168.1.10-192.168.1.254   245/0/245
+",DHCP address pool OFFICE_POOL is exhausted (utilization is 100%).
+NET-007,"PCs in VLAN 10 fail to receive IP addresses via DHCP, but PCs in VLAN 50 (where DHCP Server is located) work fine.",DHCP Server is at 10.1.1.5 (VLAN 50). Router sub-interface Gi0/0.10 serves VLAN 10.,DHCP,High,Layer 3,"Router# show running-config interface GigabitEthernet0/0.10
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ ! Missing helper-address pointing to 10.1.1.5
+",Missing DHCP helper-address configuration on Router sub-interface GigabitEthernet0/0.10.
+NET-008,All clients on the local network fail to get IP addresses from the Router DHCP server.,"Router has a valid DHCP pool configured, but clients cannot lease IPs.",DHCP,High,Layer 7,"Router# show running-config
+ip dhcp pool MYPOOL
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+no ip dhcp service
+",DHCP service is disabled globally on the router ('no ip dhcp service').
+NET-009,Client PCs can ping internal server IPs but cannot browse websites using domain names.,DNS Server is at 192.168.1.10. Client PCs receive DHCP configuration from the Router.,DNS,Medium,Layer 7,"Router# show running-config | section ip dhcp pool
+ip dhcp pool CLIENT_POOL
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 192.168.1.100
+",DHCP pool distributes incorrect DNS Server IP address (192.168.1.100 instead of 192.168.1.10).
+NET-010,"DNS queries fail for all clients, and server is not responding to port 53 UDP requests.",DNS Server is located at 10.1.1.10.,DNS,High,Layer 7,"DNSServer# show service-status
+Service: DNS        Status: Disabled
+Service: HTTP       Status: Enabled
+Service: HTTPS      Status: Enabled
+",DNS Server service is disabled on the DNS Server host.
+NET-011,Router1 cannot reach networks connected to Router2 via OSPF.,Router1 (192.168.12.1) and Router2 (192.168.12.2) are neighbors. Router1 has interface GigabitEthernet0/0 on subnet 192.168.30.0/24.,Routing,High,Layer 3,"Router1# show running-config | section router ospf
+router ospf 1
+ network 192.168.12.0 0.0.0.3 area 0
+ ! Missing network statement for 192.168.30.0/24
+",OSPF network statement is missing for subnet 192.168.30.0/24 on Router1.
+NET-012,OSPF neighbor adjacency is not forming between Router1 and Router2.,Router1 Gi0/0 connects to Router2 Gi0/0 on network 192.168.12.0/30.,Routing,High,Layer 3,"Router1# show running-config | section router ospf
+router ospf 1
+ network 192.168.12.0 0.0.0.3 area 0
+
+Router2# show running-config | section router ospf
+router ospf 1
+ network 192.168.12.0 0.0.0.3 area 1
+","OSPF area mismatch: Router1 is in Area 0, Router2 is in Area 1."
+NET-013,"OSPF adjacency fails, stuck in EXSTART state.",OSPF forming neighbor over GigabitEthernet0/1 link.,Routing,Medium,Layer 3,"Router1# show interfaces GigabitEthernet0/1
+GigabitEthernet0/1 is up, line protocol is up
+  MTU 1500 bytes, BW 1000000 Kbit/sec
+
+Router2# show interfaces GigabitEthernet0/1
+GigabitEthernet0/1 is up, line protocol is up
+  MTU 1450 bytes, BW 1000000 Kbit/sec
+","MTU mismatch on OSPF link (Router1 has MTU 1500, Router2 has MTU 1450)."
+NET-014,Internal clients cannot reach any internet sites (e.g. 8.8.8.8) even though local routing works.,Gateway Router should have a default route pointing to the ISP gateway at 203.0.113.2.,Routing,Critical,Layer 3,"Router# show ip route
+Gateway of last resort is not set
+
+      10.0.0.0/24 is subnetted, 2 subnets
+C        10.1.1.0 is directly connected, GigabitEthernet0/0
+C        10.1.2.0 is directly connected, GigabitEthernet0/1
+",Missing default static route ('ip route 0.0.0.0 0.0.0.0') pointing to ISP.
+NET-015,Security policy to block SSH access from guest VLAN to router is not working.,ACL GUEST_ACL blocks TCP port 22. Switch subinterface Gi0/0.40 handles guest VLAN 40.,ACL,High,Layer 4,"Router# show access-lists GUEST_ACL
+Extended IP access list GUEST_ACL
+    10 deny tcp 172.16.40.0 0.0.0.255 any eq 22
+    20 permit ip any any
+
+Router# show running-config interface GigabitEthernet0/0.40
+interface GigabitEthernet0/0.40
+ encapsulation dot1Q 40
+ ip address 172.16.40.1 255.255.255.0
+ ! No ip access-group configured
+",Access list GUEST_ACL is defined but not applied to sub-interface GigabitEthernet0/0.40.
+NET-016,"Web surfing works by typing IPs, but typing domain names fails for all hosts.",DNS traffic (UDP port 53) must be allowed through the router security ACL.,ACL,High,Layer 4,"Router# show access-lists OUTSIDE_ACL
+Extended IP access list OUTSIDE_ACL
+    10 permit tcp any any eq 80
+    20 permit tcp any any eq 443
+    30 permit icmp any any
+    # Implicit deny blocking UDP port 53
+","Access list lacks permit statement for UDP port 53 (DNS) traffic, causing queries to be blocked by the implicit deny."
+NET-017,Internal clients cannot reach the web server on the DMZ subnet.,DMZ Web Server is at 192.168.100.10. ACL is applied inbound on Router interface GigabitEthernet0/1 (DMZ interface).,ACL,High,Layer 4,"Router# show running-config interface GigabitEthernet0/1
+interface GigabitEthernet0/1
+ ip address 192.168.100.1 255.255.255.0
+ ip access-group DMZ_ACL in
+
+Router# show access-lists DMZ_ACL
+Extended IP access list DMZ_ACL
+    10 permit tcp any host 192.168.100.10 eq 80
+    20 permit tcp any host 192.168.100.10 eq 443
+    ! This ACL prevents return traffic from the web server because it is applied 'in' on the DMZ interface
+",DMZ_ACL is applied in the wrong direction ('in' instead of 'out' on Gi0/1) or missing permit rules for server response traffic.
+NET-018,Hosts on private subnet 192.168.1.0/24 cannot access the internet; NAT translation table is empty.,"Gateway Router is configured for dynamic PAT. Gi0/0 is connected to LAN, Gi0/1 to WAN.",NAT,Critical,Layer 3,"Router# show running-config interface GigabitEthernet0/0
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ ! Missing 'ip nat inside'
+
+Router# show running-config interface GigabitEthernet0/1
+interface GigabitEthernet0/1
+ ip address 203.0.113.1 255.255.255.252
+ ip nat outside
+",Missing 'ip nat inside' configuration on interface GigabitEthernet0/0.
+NET-019,Only one local PC can browse the web at a time. Other PCs get connection timeouts.,Router uses external interface IP for translation (PAT). Subnet is 192.168.1.0/24.,NAT,High,Layer 3,"Router# show running-config | include ip nat
+ip nat inside source list 1 interface GigabitEthernet0/1
+
+Router# show access-lists 1
+Standard IP access list 1
+    10 permit 192.168.1.0 0.0.0.255
+","Missing 'overload' keyword in the NAT translation rule, causing static 1-to-1 NAT instead of Port Address Translation (PAT)."
+NET-020,"NAT translations are not occurring, and users cannot reach the external ISP network.",LAN is on subnet 192.168.10.0/24. Router NAT configuration references ACL 10.,NAT,High,Layer 3,"Router# show running-config | include ip nat
+ip nat inside source list 10 interface GigabitEthernet0/1 overload
+
+Router# show access-lists 10
+Standard IP access list 10
+    10 permit 192.168.20.0 0.0.0.255
+",NAT access-list 10 contains the wrong subnet (permits 192.168.20.0/24 instead of internal subnet 192.168.10.0/24).
+NET-021,Wireless client laptop fails to associate with the Access Point.,Wireless LAN SSID is 'Office_Net'. Client Laptop is configured for wireless.,Wireless,Medium,Layer 2,"AccessPoint# show wireless ssid
+SSID: Office_Wifi
+Security: WPA2-PSK
+
+ClientLaptop# show wireless connection-status
+SSID configured: Office_Net
+Status: Searching for AP...
+",SSID mismatch between the Access Point ('Office_Wifi') and the Wireless Client ('Office_Net').
+NET-022,Wireless client is stuck on authentication failure when trying to connect to the AP.,SSID is 'Staff_Secure' using WPA2 Pre-Shared Key.,Wireless,High,Layer 2,"AccessPoint# show security wpa-psk
+SSID: Staff_Secure
+Key: Cisco12345!
+
+ClientLaptop# show wireless auth-settings
+SSID: Staff_Secure
+Key configured: cisco12345!
+",Pre-Shared Key mismatch (Cisco12345! on AP vs lowercase cisco12345! on Client).
+NET-023,"Wireless clients connect to the AP but fail to get an IP address, getting APIPA addresses.",Wireless clients are on VLAN 40. The WLC handles the DHCP configuration for wireless.,Wireless,High,Layer 7,"WirelessLANController# show dhcp-summary
+Scope Name         Address Range                  Leased   Limit    Status
+VLAN40_DHCP        172.16.40.10 - 172.16.40.20    11       11       Active
+",DHCP address pool on WLC for VLAN40 is exhausted.
+NET-024,"Duplicate IP warnings are displayed on the router console, and connectivity to WebServer is erratic.",DMZ WebServer is configured on 192.168.10.10. Router interface Gi0/1 is the gateway for DMZ.,Gateway,High,Layer 3,"Router# show running-config interface GigabitEthernet0/1
+interface GigabitEthernet0/1
+ ip address 192.168.10.10 255.255.255.0
+
+Router# show arp
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.10.10           -   0001.97A2.A8B0  ARPA   GigabitEthernet0/1
+Internet  192.168.10.10           2   000A.F3C1.B821  ARPA   GigabitEthernet0/1
+",Duplicate IP address conflict: Both the Router interface Gi0/1 and DMZ WebServer host are configured with the IP 192.168.10.10.
+NET-025,OSPF Neighbor relationship fails to form between Router1 and Router2 on a point-to-point link.,Router1 is on subnet 10.10.10.0. Router2 is on subnet 10.10.10.0.,Routing,Medium,Layer 3,"Router1# show running-config interface GigabitEthernet0/1
+interface GigabitEthernet0/1
+ ip address 10.10.10.1 255.255.255.0
+
+Router2# show running-config interface GigabitEthernet0/1
+interface GigabitEthernet0/1
+ ip address 10.10.10.2 255.255.255.240
+","Subnet mask mismatch on the interconnecting link (Router1 uses /24, Router2 uses /28)."
+NET-026,VLAN 30 users cannot communicate across the network switch.,Switch trunk port GigabitEthernet0/1 is used to carry VLAN 30 to the core switch.,VLAN,High,Layer 2,"Switch# show interfaces GigabitEthernet0/1 switchport
+Name: Gi0/1
+Administrative Mode: trunk
+Operational Mode: trunk
+
+Switch# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/1     unassigned      YES unset  administratively down down
+",The trunk interface GigabitEthernet0/1 is shut down ('administratively down').
+NET-027,Guest VLAN users can ping internal production database servers.,Guest network is 172.16.50.0/24. Production Database is at 10.1.1.200. ACL is supposed to isolate guest traffic.,ACL,High,Layer 4,"Router# show access-lists GUEST_FILTER
+Extended IP access list GUEST_FILTER
+    10 permit tcp any any eq 80
+    20 permit tcp any any eq 443
+    30 permit ip any any
+    ! permit ip any any allows all traffic including to the production servers
+",Access list GUEST_FILTER is missing a deny rule to block traffic from the Guest subnet to the internal 10.0.0.0/8 network before permitting everything else.
+NET-028,DHCP clients get correct IP addresses but cannot access other subnets or the internet.,Router sub-interface Gi0/0.10 is 192.168.10.1. Client subnet is 192.168.10.0/24.,DHCP,High,Layer 7,"Router# show running-config | section ip dhcp pool
+ip dhcp pool VLAN10_POOL
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.254
+ dns-server 8.8.8.8
+",DHCP pool default-router IP is misconfigured as 192.168.10.254 (should be Router interface IP 192.168.10.1).
+NET-029,"Pinging database.internal.local fails, but pinging the server IP 10.1.1.50 directly works.",Internal DNS server should resolve database.internal.local to 10.1.1.50.,DNS,Medium,Layer 7,"DNSServer# show dns-records
+Domain: www.internal.local    Type: A      IP: 10.1.1.10
+Domain: mail.internal.local   Type: A      IP: 10.1.1.20
+! Missing A record for database.internal.local
+",DNS A record for database.internal.local is missing on the DNS Server.
+NET-030,Internet connectivity fails; external router reports conflict on its public interface.,Router uses NAT pool WAN_POOL to map internal IP addresses to the WAN range 203.0.113.0/29.,NAT,Critical,Layer 3,"Router# show running-config | include ip nat pool
+ip nat pool WAN_POOL 203.0.113.1 203.0.113.6 netmask 255.255.255.248
+
+Router# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/1     203.0.113.1     YES manual up                    up
+",NAT pool IP range WAN_POOL conflicts with Router WAN interface Gi0/1 IP address (203.0.113.1).

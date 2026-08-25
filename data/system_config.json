@@ -1,0 +1,6 @@
+{
+  "model_name": "gemini-2.5-flash",
+  "confidence_threshold": 0.7,
+  "max_tokens": 1024,
+  "temperature": 0.1
+}
